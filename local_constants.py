@@ -1,0 +1,2 @@
+PROJECT_NAME="gallery-429016"
+PROJECT_STORAGE_BUCKET="gallery-429016.appspot.com"
