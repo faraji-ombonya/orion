@@ -48,21 +48,28 @@ def get_user(user_token):
     
     Gets a document that represents a user. Creates one if it does not exist.
     """
-    user = firestore_db.collection("users").document(user_token['user_id'])
-    if not user.get().exists():
+    user_ref = firestore_db.collection("users").document(user_token['user_id'])
+    if not user_ref.get().exists:
         user_data = {
             'email':user_token['email'], 
             'galleries': [],
         }
         firestore_db.collection("users").document(user_token['user_id']).set(user_data)
-    return user
+    return user_ref
 
 
-def create_gallery(gallery_name: str, user_document):
+def create_gallery(gallery_name: str, user_ref):
     """Create a gallery.
     
-    Create a gallery and return the gallery reference.
+    Create a gallery and return the gallery reference. Raise a value
+    error if a gallery with the same name exists.
     """
+
+    # check if the gallery name exists
+    for gallery in user_ref.get().get('galleries'):
+        if gallery.get().get("name") == gallery_name:
+            raise ValueError("A gallery with a similar name exists")
+
     gallery_ref = firestore_db.collection("galleries").document()
     gallery_ref.set({
         "name": gallery_name,
@@ -129,7 +136,7 @@ async def initialize(request: Request):
     # create a dummy user, image and gallery
     dummy_user = get_user(dummy_user_token)
     dummy_image_ref = create_image("https://picsum.photos/200/300")
-    dummy_gallery_ref = create_gallery("dummy_gallery")
+    dummy_gallery_ref = create_gallery("dummy_gallery", dummy_user)
 
     # add image to gallery then attach the gallery to the user
     dummy_gallery_ref = add_image_to_gallery(dummy_image_ref, dummy_gallery_ref)
