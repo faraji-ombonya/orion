@@ -101,6 +101,17 @@ def get_gallery_refs(user_ref):
     return gallery_refs
 
 
+def validate_gallery_name(gallery_name, gallery_refs, index):
+    for i in range(len(gallery_refs)):
+        if i == index:
+            continue
+
+        gallery = gallery_refs[i].get()
+
+        if gallery.get("name") == gallery_name:
+            raise ValueError("A gallery with the same name exists")
+        
+
 def create_image(image_url):
     """Create an image document.
     
@@ -225,8 +236,16 @@ async def update_gallery_name(request: Request):
     gallery_name = form['gallery_name']
     index = int(form['index'])
 
+
     user_ref = get_user(user_token)
     gallery_refs = get_gallery_refs(user_ref)
+
+    try:
+        validate_gallery_name(gallery_name, gallery_refs, index)
+    except ValueError as e:
+        print(str(e))
+        return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
+
     gallery_ref = gallery_refs[index]
     gallery_ref.update({"name": gallery_name})
     return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
