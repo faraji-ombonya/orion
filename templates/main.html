@@ -40,6 +40,12 @@
 
       <p>{{ gallery.get("name") }}</p>
 
+      <form action="/update-gallery-name" method="post">
+        <input type="text" name="gallery_name">
+        <input type="hidden" name="index" value="{{ loop.index0 }}">
+        <input type="submit" value="Update">
+      </form>
+
       {% endfor %}
     </div>
     {%endif%}

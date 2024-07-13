@@ -93,6 +93,14 @@ def get_galleries(user_ref):
     return galleries
 
 
+def get_gallery_refs(user_ref):
+    """Get user gallery refs"""
+    gallery_refs = []
+    for gallery in user_ref.get().get('galleries'):
+        gallery_refs.append(gallery)
+    return gallery_refs
+
+
 def create_image(image_url):
     """Create an image document.
     
@@ -168,7 +176,6 @@ async def root(request: Request):
 
     # get user galleries
     galleries = get_galleries(user_ref)
-    print("galleries::", galleries)
     
     # render template with user_token after successful validation
     return templates.TemplateResponse(
@@ -203,4 +210,23 @@ async def create_a_gallery(request: Request):
     except ValueError as e:
         print(str(e))
 
+    return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
+
+@app.post('/update-gallery-name', response_class=RedirectResponse)
+async def update_gallery_name(request: Request):
+    # get and validate token
+    id_token = request.cookies.get("token")
+    user_token = validate_firebase_token(id_token)
+    if not user_token:
+        return RedirectResponse("/")
+    
+    # get new gallery name from the form
+    form =  await request.form()
+    gallery_name = form['gallery_name']
+    index = int(form['index'])
+
+    user_ref = get_user(user_token)
+    gallery_refs = get_gallery_refs(user_ref)
+    gallery_ref = gallery_refs[index]
+    gallery_ref.update({"name": gallery_name})
     return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
