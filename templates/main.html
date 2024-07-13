@@ -22,6 +22,26 @@
     <!-- if we hava a logged in user then show the user email address from the user_token object -->
     {% if user_token %}
     <p>User email: {{ user_token.email }}</p>
+
+    <div>
+      <h2>Add a gallery</h2>
+
+      <form action="/gallery" method="post">
+        Gallery Name:
+        <input type="text" name="gallery_name" id="gallery_name" required />
+        <input type="submit" value="Save" />
+      </form>
+    </div>
+
+    <div>
+      <h2>Galleries</h2>
+
+      {% for gallery in galleries %}
+
+      <p>{{ gallery.get("name") }}</p>
+
+      {% endfor %}
+    </div>
     {%endif%}
   </body>
 </html>

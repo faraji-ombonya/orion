@@ -64,7 +64,6 @@ def create_gallery(gallery_name: str, user_ref):
     Create a gallery and return the gallery reference. Raise a value
     error if a gallery with the same name exists.
     """
-
     # check if the gallery name exists
     for gallery in user_ref.get().get('galleries'):
         if gallery.get().get("name") == gallery_name:
@@ -78,18 +77,18 @@ def create_gallery(gallery_name: str, user_ref):
     return gallery_ref
 
 
-def add_gallery_to_user(gallery_ref, user_document):
+def add_gallery_to_user(gallery_ref, user_ref):
     """Add a gallery to a user."""
-    galleries = user_document.get().get('galleries')
+    galleries = user_ref.get().get('galleries')
     galleries.append(gallery_ref)
-    user_document.update({'galleries': galleries})
-    return user_document
+    user_ref.update({'galleries': galleries})
+    return user_ref
 
 
-def get_galleries(user_document):
+def get_galleries(user_ref):
     """Get user galleries"""
     galleries = []
-    for gallery in user_document.get('galleries'):
+    for gallery in user_ref.get().get('galleries'):
         galleries.append(gallery.get())
     return galleries
 
@@ -162,12 +161,14 @@ async def root(request: Request):
                 'user': None,
             },
         )
-    
+        
     # get user document
-    user = get_user(user_token).get()
+    user_ref = get_user(user_token)
+    user = user_ref.get()
 
     # get user galleries
-    galleries = get_galleries(user)
+    galleries = get_galleries(user_ref)
+    print("galleries::", galleries)
     
     # render template with user_token after successful validation
     return templates.TemplateResponse(
@@ -180,3 +181,26 @@ async def root(request: Request):
             "error_message": None,
         },
     )
+
+
+@app.post('/gallery', response_class=RedirectResponse)
+async def create_a_gallery(request: Request):
+    # get and validate token
+    id_token = request.cookies.get("token")
+    user_token = validate_firebase_token(id_token)
+    if not user_token:
+        return RedirectResponse("/")
+    
+    user_ref = get_user(user_token)
+
+    # get gallery name from the form
+    form = await request.form()
+    gallery_name = form['gallery_name']
+
+    try:
+        gallery_ref = create_gallery(gallery_name, user_ref)
+        user_ref = add_gallery_to_user(gallery_ref, user_ref)
+    except ValueError as e:
+        print(str(e))
+
+    return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
