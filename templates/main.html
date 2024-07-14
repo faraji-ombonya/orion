@@ -55,6 +55,10 @@
 
       <a href="/gallery/{{ loop.index0 }}">
         <p>{{ gallery.get("name") }}</p>
+
+        {% if gallery.get('images')[0] %}
+        <img src="{{ gallery.get('images')[0].get().get('url') }}" alt="" width="200">
+        {% endif %}
       </a>
 
       <form action="/update-gallery-name" method="post">
