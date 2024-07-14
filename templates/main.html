@@ -67,6 +67,12 @@
         <input type="submit" value="Update" />
       </form>
 
+      <form action="/share-gallery" method="post">
+        <input type="email" name="email" required/>
+        <input type="hidden" name="index" value="{{ loop.index0 }}" />
+        <input type="submit" value="Share" />
+      </form>
+
       <form action="/delete-gallery" method="post">
         <input type="hidden" name="index" value="{{ loop.index0 }}" />
         <input type="submit" value="delete" />

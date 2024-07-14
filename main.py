@@ -5,11 +5,13 @@ from fastapi.templating import Jinja2Templates
 import google.oauth2.id_token
 from google.auth.transport import requests
 from google.cloud import firestore, storage
+from google.cloud.firestore_v1.base_query import FieldFilter
 import starlette.status as status
 import local_constants
 import uuid
 from pathlib import Path
 import hashlib
+import re
 
 
 #  app that will contain routing for fast API
@@ -203,6 +205,16 @@ def find_duplicate_images(image_refs):
             duplicate_image_refs.append(ref)
 
     return duplicate_image_refs
+
+
+
+def validate_email(email):
+    """Validate an email address."""
+    pattern = re.compile(
+        r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+    )
+    return re.match(pattern, email) is not None
+
 
 # I don't really understand task number 2 in the first group of tasks
 # where I'm supposed to generate firestore document collections to represent
@@ -399,6 +411,42 @@ async def handle_delete_gallery(request: Request):
     return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
 
 
+@app.post('/share-gallery', response_class=RedirectResponse)
+async def handle_get_gallery(request: Request):
+    # get and validate token
+    id_token = request.cookies.get("token")
+    user_token = validate_firebase_token(id_token)
+    if not user_token:
+        return RedirectResponse("/")
+    
+    form = await request.form()
+    email = form['email']
+    index = int(form['index'])
+
+    if not validate_email(email):
+        return RedirectResponse("/")
+
+    # get user ref with matching email
+    users_ref = firestore_db.collection("users")
+    query = users_ref.where(filter=FieldFilter('email', '==', email))
+    users = query.get()
+    
+    if len(users) < 1:
+        return RedirectResponse("/")
+    
+    current_user_ref = get_user(user_token)
+    current_user_galleries = get_gallery_refs(current_user_ref)
+    gallery_to_share_ref = current_user_galleries[index]
+
+
+    user = users[0]
+    user_gallery_refs = user.get('galleries')
+    user_gallery_refs.append(gallery_to_share_ref)
+    user.reference.update({"galleries": user_gallery_refs})
+
+    return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
+
+    
 @app.post("/gallery/{index}/image", response_class=RedirectResponse)
 async def handle_upload_image(request: Request, index: int):
     # get and validate token
