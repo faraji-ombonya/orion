@@ -182,6 +182,28 @@ def get_image_refs(gallery_ref):
     return gallery_ref.get().get('images')
 
 
+def find_duplicate_images(image_refs):
+    """Find duplicate images."""
+    seen = set()
+    duplicates = set()
+    duplicate_refs = set()
+
+    for ref in image_refs:
+        image = ref.get()
+        hash_value = image.get('hash_value')
+        if hash_value in seen:
+            duplicates.add(image.get('hash_value'))
+            duplicate_refs.add(ref)
+        else:
+            seen.add(image.get('hash_value'))
+
+    duplicate_image_refs = []
+    for ref in image_refs:
+        if ref in duplicate_refs:
+            duplicate_image_refs.append(ref)
+
+    return duplicate_image_refs
+
 # I don't really understand task number 2 in the first group of tasks
 # where I'm supposed to generate firestore document collections to represent
 # users, galleries and images. This is because firestore will implicitly create
@@ -272,7 +294,7 @@ async def handle_create_gallery(request: Request):
 
 
 @app.get('/gallery/{index}', response_class=HTMLResponse)
-async def handle_get_gallery(request: Request, index: int):
+async def handle_get_gallery(request: Request, index: int, detect_duplicates: bool = False):
     # get and validate token
     id_token = request.cookies.get("token")
     user_token = validate_firebase_token(id_token)
@@ -289,6 +311,14 @@ async def handle_get_gallery(request: Request, index: int):
     for ref in image_refs:
         images.append(ref.get())
 
+    # include duplicate images in the response if detect_duplicates  is set to true
+    duplicate_image_refs = []
+    duplicate_images = []
+    if detect_duplicates:
+        duplicate_image_refs = find_duplicate_images(image_refs)
+        for ref in duplicate_image_refs:
+            duplicate_images.append(ref.get())
+
     return templates.TemplateResponse(
         "gallery.html", 
         {
@@ -299,6 +329,7 @@ async def handle_get_gallery(request: Request, index: int):
             "gallery_index": index,
             "error_message": None,
             "images": images,
+            "duplicates": duplicate_images,
         },
     )
 
@@ -395,20 +426,3 @@ async def handle_delete_image(request: Request, gallery_index: int, image_index:
 
     gallery_ref.update({"images": image_refs})
     return RedirectResponse(f"/gallery/{gallery_index}", status_code=status.HTTP_302_FOUND)
-
-
-@app.post("/gallery/{gallery_index}/detect-duplicates", response_class=RedirectResponse)
-async def handle_detect_duplicates(request: Request, gallery_index: int):
-    # get and validate token
-    id_token = request.cookies.get("token")
-    user_token = validate_firebase_token(id_token)
-    if not user_token:
-        return RedirectResponse("/")   
-
-    user_ref = get_user(user_token)
-    gallery_refs = get_gallery_refs(user_ref)
-    gallery_ref = gallery_refs[gallery_index]
-    image_refs = get_image_refs(gallery_ref)
-
-
-

@@ -43,6 +43,10 @@
         <input type="submit" value="Upload" />
       </form>
 
+      <a href="/gallery/{{ gallery_index }}/?detect_duplicates=true">
+        Show duplicates
+      </a>
+
       <h3>Images</h3>
       {% for image in images %}
       <img src="{{ image.get('url') }}" alt="" width="200" />
@@ -52,7 +56,22 @@
       >
         <input type="submit" value="delete" />
       </form>
+      {% endfor %} 
+
+      <!-- render duplicates -->
+      {% if duplicates %} 
+      <h3>duplicates</h3>
+
+      {% for duplicate in duplicates %}
+      <img src="{{ duplicate.get('url') }}" alt="" width="200" />
+      <form
+        action="/gallery/{{ gallery_index }}/image/{{ loop.index0 }}/delete"
+        method="post"
+      >
+        <input type="submit" value="delete" />
+      </form>
       {% endfor %}
+      {% endif %}
     </div>
     {%endif%}
   </body>
