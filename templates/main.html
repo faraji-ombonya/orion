@@ -33,6 +33,21 @@
       </form>
     </div>
 
+    <a href="/?detect_duplicates=true">
+      Show duplicates
+    </a>
+
+    {% if duplicates %}
+
+    <h3>duplicates</h3>
+
+      {% for duplicate in duplicates %}
+      <img src="{{ duplicate.get('url') }}" alt="" width="200" />
+      </form>
+      {% endfor %}
+
+    {% endif %}
+
     <div>
       <h2>Galleries</h2>
 

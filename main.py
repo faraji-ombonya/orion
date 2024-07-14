@@ -233,7 +233,7 @@ async def initialize(request: Request):
 
 
 @app.get("/", response_class=HTMLResponse)
-async def root(request: Request):
+async def root(request: Request, detect_duplicates: bool = False):
     user_token = None
 
     # get and validate id_token
@@ -256,6 +256,21 @@ async def root(request: Request):
 
     # get user galleries
     galleries = get_galleries(user_ref)
+
+
+    # detect duplicate images in all galleries if detect_duplicates is set to true
+    duplicate_images = []
+    if detect_duplicates:
+        all_image_refs = []
+
+        for gallery in galleries:
+            image_refs = gallery.get("images")
+            all_image_refs.extend(image_refs)
+
+        duplicate_image_refs = find_duplicate_images(all_image_refs)
+
+        for ref in duplicate_image_refs:
+            duplicate_images.append(ref.get())
     
     # render template with user_token after successful validation
     return templates.TemplateResponse(
@@ -265,6 +280,7 @@ async def root(request: Request):
             "user_token": user_token, 
             "user_info": user,
             "galleries": galleries,
+            "duplicates": duplicate_images,
             "error_message": None,
         },
     )
