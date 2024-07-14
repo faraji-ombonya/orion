@@ -350,3 +350,5 @@ async def handle_upload_image(request: Request, index: int):
     gallery_ref = add_image_to_gallery(image_ref, gallery_ref)
     
     return RedirectResponse(f"/gallery/{index}", status_code=status.HTTP_302_FOUND)
+
+

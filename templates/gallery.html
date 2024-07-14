@@ -21,6 +21,8 @@
 
     <!-- if we hava a logged in user then show the user email address from the user_token object -->
     {% if user_token %}
+    <a href="/"> go back</a>
+
     <p>User email: {{ user_token.email }}</p>
 
     <div>
