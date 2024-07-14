@@ -164,6 +164,11 @@ def add_image_to_gallery(image_ref, gallery_ref):
     return gallery_ref
 
 
+def get_image_refs(gallery_ref):
+    """Get image refs"""
+    return gallery_ref.get().get('images')
+
+
 # I don't really understand task number 2 in the first group of tasks
 # where I'm supposed to generate firestore document collections to represent
 # users, galleries and images. This is because firestore will implicitly create
@@ -359,3 +364,20 @@ async def handle_upload_image(request: Request, index: int):
     return RedirectResponse(f"/gallery/{index}", status_code=status.HTTP_302_FOUND)
 
 
+@app.post("/gallery/{gallery_index}/image/{image_index}/delete", response_class=RedirectResponse)
+async def handle_delete_image(request: Request, gallery_index: int, image_index: int):
+    # get and validate token
+    id_token = request.cookies.get("token")
+    user_token = validate_firebase_token(id_token)
+    if not user_token:
+        return RedirectResponse("/")   
+
+    user_ref = get_user(user_token)
+    gallery_refs = get_gallery_refs(user_ref)
+    gallery_ref = gallery_refs[gallery_index]
+    image_refs = get_image_refs(gallery_ref) 
+    image_refs[image_index].delete()
+    del image_refs[image_index]
+
+    gallery_ref.update({"images": image_refs})
+    return RedirectResponse(f"/gallery/{gallery_index}", status_code=status.HTTP_302_FOUND)
