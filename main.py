@@ -9,7 +9,8 @@ import starlette.status as status
 import local_constants
 import uuid
 from pathlib import Path
-import mimetypes
+import hashlib
+
 
 #  app that will contain routing for fast API
 app = FastAPI()
@@ -126,6 +127,17 @@ def validate_image(file):
     return True
 
 
+def hash_image(file, chunk_size=4096):
+    """Hash an image file with sha1"""
+    sha1 = hashlib.sha1()
+    file.seek(0)
+    chunk = file.read(chunk_size)
+    while chunk:
+        sha1.update(chunk)
+        chunk = file.read(chunk_size)
+    return sha1.hexdigest()
+
+
 def upload_image(file):
     """Upload image to the storage bucket."""
     storage_client = storage.Client(project=local_constants.PROJECT_NAME)
@@ -141,14 +153,15 @@ def upload_image(file):
     return blob.public_url
     
 
-def create_image(image_url):
+def create_image(image_url, hash_value):
     """Create an image document.
     
     Creates an image document and returns the image reference.
     """
     image_ref = firestore_db.collection("images").document()
     image_ref.set({
-        "url": image_url
+        "url": image_url,
+        "hash_value": hash_value
     })
     return image_ref
 
@@ -187,7 +200,7 @@ async def initialize(request: Request):
     }
     # create a dummy user, image and gallery
     dummy_user = get_user(dummy_user_token)
-    dummy_image_ref = create_image("https://picsum.photos/200/300")
+    dummy_image_ref = create_image("https://picsum.photos/200/300", "adhafjhsfjhsfhjsf")
     dummy_gallery_ref = create_gallery("dummy_gallery", dummy_user)
 
     # add image to gallery then attach the gallery to the user
@@ -354,7 +367,8 @@ async def handle_upload_image(request: Request, index: int):
         return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
 
     image_url = upload_image(form['file_name'])
-    image_ref = create_image(image_url)
+    hash_value = hash_image(form['file_name'].file)
+    image_ref = create_image(image_url, hash_value)
     
     user_ref = get_user(user_token)
     gallery_refs = get_gallery_refs(user_ref)
@@ -381,3 +395,20 @@ async def handle_delete_image(request: Request, gallery_index: int, image_index:
 
     gallery_ref.update({"images": image_refs})
     return RedirectResponse(f"/gallery/{gallery_index}", status_code=status.HTTP_302_FOUND)
+
+
+@app.post("/gallery/{gallery_index}/detect-duplicates", response_class=RedirectResponse)
+async def handle_detect_duplicates(request: Request, gallery_index: int):
+    # get and validate token
+    id_token = request.cookies.get("token")
+    user_token = validate_firebase_token(id_token)
+    if not user_token:
+        return RedirectResponse("/")   
+
+    user_ref = get_user(user_token)
+    gallery_refs = get_gallery_refs(user_ref)
+    gallery_ref = gallery_refs[gallery_index]
+    image_refs = get_image_refs(gallery_ref)
+
+
+
