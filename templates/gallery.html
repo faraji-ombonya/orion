@@ -42,6 +42,12 @@
         />
         <input type="submit" value="Upload" />
       </form>
+
+      <h3>Images</h3>
+      {% for image in images %} 
+      <img src="{{ image.get('url') }}" alt="" width="200" >
+      {% endfor %}
+
     </div>
     {%endif%}
   </body>

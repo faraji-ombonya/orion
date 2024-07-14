@@ -265,6 +265,12 @@ async def handle_get_gallery(request: Request, index: int):
     gallery_refs = get_gallery_refs(user_ref)
     gallery_ref = gallery_refs[index]
 
+    image_refs = gallery_ref.get().get("images")
+
+    images = []
+    for ref in image_refs:
+        images.append(ref.get())
+
     return templates.TemplateResponse(
         "gallery.html", 
         {
@@ -274,6 +280,7 @@ async def handle_get_gallery(request: Request, index: int):
             "gallery": gallery_ref.get(),
             "gallery_index": index,
             "error_message": None,
+            "images": images,
         },
     )
 
