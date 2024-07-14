@@ -202,7 +202,7 @@ async def root(request: Request):
 
 
 @app.post('/gallery', response_class=RedirectResponse)
-async def create_a_gallery(request: Request):
+async def handle_create_gallery(request: Request):
     # get and validate token
     id_token = request.cookies.get("token")
     user_token = validate_firebase_token(id_token)
@@ -222,6 +222,31 @@ async def create_a_gallery(request: Request):
         print(str(e))
 
     return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
+
+
+@app.get('/gallery/{index}', response_class=HTMLResponse)
+async def handle_get_gallery(request: Request, index: int):
+    # get and validate token
+    id_token = request.cookies.get("token")
+    user_token = validate_firebase_token(id_token)
+    if not user_token:
+        return RedirectResponse("/")
+    
+    user_ref = get_user(user_token)
+    gallery_refs = get_gallery_refs(user_ref)
+    gallery_ref = gallery_refs[index]
+
+    return templates.TemplateResponse(
+        "gallery.html", 
+        {
+            "request": request, 
+            "user_token": user_token, 
+            "user_info": user_ref.get(),
+            "gallery": gallery_ref.get(),
+            "error_message": None,
+        },
+    )
+
 
 @app.post('/update-gallery-name', response_class=RedirectResponse)
 async def handle_update_gallery_name(request: Request):
@@ -268,7 +293,7 @@ async def handle_delete_gallery(request: Request):
     gallery_ref.delete()
     del gallery_refs[index]
 
-    user_ref.update({"galleries":gallery_refs})
+    user_ref.update({"galleries": gallery_refs})
     return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
 
 

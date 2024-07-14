@@ -24,36 +24,7 @@
     <p>User email: {{ user_token.email }}</p>
 
     <div>
-      <h2>Add a gallery</h2>
-
-      <form action="/gallery" method="post">
-        Gallery Name:
-        <input type="text" name="gallery_name" id="gallery_name" required />
-        <input type="submit" value="Save" />
-      </form>
-    </div>
-
-    <div>
-      <h2>Galleries</h2>
-
-      {% for gallery in galleries %}
-
-      <a href="/gallery/{{ loop.index0 }}">
-        <p>{{ gallery.get("name") }}</p>
-      </a>
-
-      <form action="/update-gallery-name" method="post">
-        <input type="text" name="gallery_name" />
-        <input type="hidden" name="index" value="{{ loop.index0 }}" />
-        <input type="submit" value="Update" />
-      </form>
-
-      <form action="/delete-gallery" method="post">
-        <input type="hidden" name="index" value="{{ loop.index0 }}" />
-        <input type="submit" value="delete" />
-      </form>
-
-      {% endfor %}
+      <h2>Gallery: {{ gallery.get("name") }}</h2>
     </div>
     {%endif%}
   </body>
