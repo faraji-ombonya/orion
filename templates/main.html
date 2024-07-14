@@ -46,6 +46,11 @@
         <input type="submit" value="Update">
       </form>
 
+      <form action="/delete-gallery" method="post">
+        <input type="hidden" name="index" value="{{ loop.index0 }}">
+        <input type="submit" value="delete">
+      </form>
+
       {% endfor %}
     </div>
     {%endif%}

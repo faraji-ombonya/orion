@@ -224,18 +224,17 @@ async def create_a_gallery(request: Request):
     return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
 
 @app.post('/update-gallery-name', response_class=RedirectResponse)
-async def update_gallery_name(request: Request):
+async def handle_update_gallery_name(request: Request):
     # get and validate token
     id_token = request.cookies.get("token")
     user_token = validate_firebase_token(id_token)
     if not user_token:
         return RedirectResponse("/")
     
-    # get new gallery name from the form
+    # get new gallery name and index from the form
     form =  await request.form()
     gallery_name = form['gallery_name']
     index = int(form['index'])
-
 
     user_ref = get_user(user_token)
     gallery_refs = get_gallery_refs(user_ref)
@@ -249,3 +248,27 @@ async def update_gallery_name(request: Request):
     gallery_ref = gallery_refs[index]
     gallery_ref.update({"name": gallery_name})
     return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
+
+
+@app.post('/delete-gallery', response_class=RedirectResponse)
+async def handle_delete_gallery(request: Request):
+    # get and validate token
+    id_token = request.cookies.get("token")
+    user_token = validate_firebase_token(id_token)
+    if not user_token:
+        return RedirectResponse("/")
+    
+    # get gallery index from the form
+    form =  await request.form()
+    index = int(form['index'])
+
+    user_ref = get_user(user_token)
+    gallery_refs = get_gallery_refs(user_ref)
+    gallery_ref = gallery_refs[index]
+    gallery_ref.delete()
+    del gallery_refs[index]
+
+    user_ref.update({"galleries":gallery_refs})
+    return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
+
+
