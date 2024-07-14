@@ -4,9 +4,12 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 import google.oauth2.id_token
 from google.auth.transport import requests
-from google.cloud import firestore
+from google.cloud import firestore, storage
 import starlette.status as status
-
+import local_constants
+import uuid
+from pathlib import Path
+import mimetypes
 
 #  app that will contain routing for fast API
 app = FastAPI()
@@ -110,7 +113,33 @@ def validate_gallery_name(gallery_name, gallery_refs, index):
 
         if gallery.get("name") == gallery_name:
             raise ValueError("A gallery with the same name exists")
-        
+
+
+def validate_image(file):
+    """Validate an image."""
+    allowed_extensions = [".jpg", ".jpeg", ".png"]
+    extension = Path(file.filename).suffix
+    if file.filename == "":
+        return False
+    if extension not in allowed_extensions:
+        return False
+    return True
+
+
+def upload_image(file):
+    """Upload image to the storage bucket."""
+    storage_client = storage.Client(project=local_constants.PROJECT_NAME)
+    bucket = storage_client.bucket(local_constants.PROJECT_STORAGE_BUCKET)
+
+    # generate random file names
+    extension = Path(file.filename).suffix
+    file_name = f"{str(uuid.uuid4())}{extension}"
+    blob = storage.Blob(file_name, bucket)
+    
+    blob.upload_from_file(file.file)
+    blob.make_public()
+    return blob.public_url
+    
 
 def create_image(image_url):
     """Create an image document.
@@ -243,6 +272,7 @@ async def handle_get_gallery(request: Request, index: int):
             "user_token": user_token, 
             "user_info": user_ref.get(),
             "gallery": gallery_ref.get(),
+            "gallery_index": index,
             "error_message": None,
         },
     )
@@ -297,3 +327,26 @@ async def handle_delete_gallery(request: Request):
     return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
 
 
+@app.post("/gallery/{index}/image", response_class=RedirectResponse)
+async def handle_upload_image(request: Request, index: int):
+    # get and validate token
+    id_token = request.cookies.get("token")
+    user_token = validate_firebase_token(id_token)
+    if not user_token:
+        return RedirectResponse("/")
+    
+    form = await request.form()
+    file = form['file_name']
+    
+    if not validate_image(file):
+        return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
+
+    image_url = upload_image(form['file_name'])
+    image_ref = create_image(image_url)
+    
+    user_ref = get_user(user_token)
+    gallery_refs = get_gallery_refs(user_ref)
+    gallery_ref = gallery_refs[index]
+    gallery_ref = add_image_to_gallery(image_ref, gallery_ref)
+    
+    return RedirectResponse(f"/gallery/{index}", status_code=status.HTTP_302_FOUND)

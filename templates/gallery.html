@@ -25,6 +25,21 @@
 
     <div>
       <h2>Gallery: {{ gallery.get("name") }}</h2>
+
+      <h3>Add an Image</h3>
+      <form
+        action="/gallery/{{ gallery_index }}/image"
+        method="post"
+        enctype="multipart/form-data"
+      >
+        <input
+          type="file"
+          name="file_name"
+          id="file_name"
+          accept=".jpg, .jpeg, .png, image/jpeg, image/jpg, image/png"
+        />
+        <input type="submit" value="Upload" />
+      </form>
     </div>
     {%endif%}
   </body>
