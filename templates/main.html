@@ -9,10 +9,12 @@
       type="module"
       src="{{ url_for('static', path='/firebase-login.js') }}"
     ></script>
+    <script
+      type="module"
+      src="{{ url_for('static', path='/script.js') }}"
+    ></script>
   </head>
   <body class="h-full">
-
-
 
     <nav class="bg-gray-800">
       <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
@@ -93,13 +95,50 @@
     
 
     <div>
-      <h2>Add a gallery</h2>
+      <h2 id="add-gallery">Add a gallery</h2>
 
-      <form action="/gallery" method="post">
+      <div id="add-gallery-modal" hidden="true" class="relative z-10" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+      
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            <div class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
+              
+              <!-- add gallery form -->
+              <form action="/gallery" method="post">
+                <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                  <div class="mt-3 text-center sm:mt-0 sm:text-left">
+                    <h3 class="text-base font-semibold leading-6 text-gray-900" id="modal-title">Add gallery</h3>
+                    <div class="mt-2">
+                      <div class="mt-10 sm:mx-auto w-full">
+                          <div>
+                            <label for="gallery_name" class="block text-sm font-medium leading-6 text-gray-900">Gallery name</label>
+                            <div class="mt-2">
+                              <input name="gallery_name" id="gallery_name" type="gallery_name" autocomplete="gallery_name" required class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6">
+                            </div>
+                          </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
+                  <button id="" type="submit" class="inline-flex w-full justify-center rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 sm:ml-3 sm:w-auto">Save</button>
+                  <button id="close-add-gallery-modal" type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">Cancel</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+
+      
+
+      <!-- <form action="/gallery" method="post">
         Gallery Name:
         <input type="text" name="gallery_name" id="gallery_name" required />
         <input type="submit" value="Save" />
-      </form>
+      </form> -->
     </div>
 
     <a href="/?detect_duplicates=true">
@@ -118,37 +157,85 @@
     {% endif %}
 
     <div>
-      <h2>Galleries</h2>
 
+
+<div class="bg-white">
+  <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
+    <h2 class="text-2xl font-bold tracking-tight text-gray-900">Your Galleries</h2>
+
+    <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
+      
       {% for gallery in galleries %}
 
-      <a href="/gallery/{{ loop.index0 }}">
-        <p>{{ gallery.get("name") }}</p>
+      <a href="/gallery/{{ loop.index0 }}" class="group">
+        {% if gallery.get('images')[0] %}
+        <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
+          <img src="{{ gallery.get('images')[0].get().get('url') }}" alt="Tall slender porcelain bottle with natural clay textured body and cork stopper." class="h-full w-full object-cover object-center group-hover:opacity-75">
+        </div>
+        {% endif %}
 
+        <h3 class="mt-4 text-sm text-gray-700">{{ gallery.get("name") }}</h3>
+      </a>
+
+      <!-- <a href="/gallery/{{ loop.index0 }}">
+        <p>{{ gallery.get("name") }}</p>
         {% if gallery.get('images')[0] %}
         <img src="{{ gallery.get('images')[0].get().get('url') }}" alt="" width="200">
         {% endif %}
-      </a>
+      </a> -->
       
 
-      <form action="/update-gallery-name" method="post">
+      <!-- <form action="/update-gallery-name" method="post">
         <input type="text" name="gallery_name" />
         <input type="hidden" name="index" value="{{ loop.index0 }}" />
         <input type="submit" value="Update" />
-      </form>
+      </form> -->
 
-      <form action="/share-gallery" method="post">
+      <!-- <form action="/share-gallery" method="post">
         <input type="email" name="email" required/>
         <input type="hidden" name="index" value="{{ loop.index0 }}" />
         <input type="submit" value="Share" />
-      </form>
+      </form> -->
 
-      <form action="/delete-gallery" method="post">
+      <!-- <form action="/delete-gallery" method="post">
         <input type="hidden" name="index" value="{{ loop.index0 }}" />
         <input type="submit" value="delete" />
-      </form>
+      </form> -->
 
       {% endfor %}
+
+
+
+
+      
+      
+
+
+      
+
+
+      
+
+      
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
     </div>
     {%endif%}
   </body>
