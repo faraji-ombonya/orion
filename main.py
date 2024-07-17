@@ -424,7 +424,7 @@ async def handle_get_gallery(request: Request):
     index = int(form['index'])
 
     if not validate_email(email):
-        return RedirectResponse("/")
+        return RedirectResponse("/", status_code=status.HTTP_302_FOUND)
 
     # get user ref with matching email
     users_ref = firestore_db.collection("users")

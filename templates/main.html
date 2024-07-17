@@ -1,265 +1,691 @@
 <!DOCTYPE html>
 <html lang="en" class="h-full bg-white">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Firebase login</title>
+    <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}" />
+    <script
+      type="module"
+      src="{{ url_for('static', path='/firebase-login.js') }}"
+    ></script>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Firebase login</title>
-  <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}" />
-  <script type="module" src="{{ url_for('static', path='/firebase-login.js') }}"></script>
-  <script type="module" src="{{ url_for('static', path='/script.js') }}"></script>
-</head>
-
-<body class="h-full">
-
-  <nav class="bg-gray-800">
-    <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-      <div class="relative flex h-16 items-center justify-end">
-        <div class="flex flex-1 items-center justify-between ">
-          <div class="flex flex-shrink-0 items-center">
-            <svg class="mx-auto h-8 w-auto text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
-              viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
-            </svg>
-          </div>
-          <div class="hidden sm:ml-6 sm:block ">
-            <div class="flex justify-end space-x-4">
-              <button id="sign-out" hidden="true"
-                class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white">Logout</button>
+  <body class="h-full">
+    <nav class="bg-gray-800">
+      <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
+        <div class="relative flex h-16 items-center justify-end">
+          <div class="flex flex-1 items-center justify-between">
+            <div class="flex flex-shrink-0 items-center">
+              <svg
+                class="mx-auto h-8 w-auto text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-6"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z"
+                />
+              </svg>
+            </div>
+            <div class="hidden sm:ml-6 sm:block">
+              <div class="flex justify-end space-x-4">
+                <button
+                  id="sign-out"
+                  hidden="true"
+                  class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-gray-700 hover:text-white"
+                >
+                  Logout
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </nav>
+    </nav>
 
-  <!-- authentication -->
-  <div id="login-box" hidden="true">
-    <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
-      <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-        <!-- <svg class="mx-auto h-12 w-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
+    <!-- authentication -->
+    <div id="login-box" hidden="true">
+      <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
+        <div class="sm:mx-auto sm:w-full sm:max-w-sm">
+          <!-- <svg class="mx-auto h-12 w-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
             <path stroke-linecap="round" stroke-linejoin="round" d="m2.25 15.75 5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5 1.409-1.409a2.25 2.25 0 0 1 3.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Zm.375 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
           </svg> -->
-        <h2 class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">Sign in to your account
-        </h2>
-      </div>
+          <h2
+            class="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900"
+          >
+            Sign in to your account
+          </h2>
+        </div>
 
-      <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <div class="space-y-6" action="#" method="POST">
-          <div>
-            <label for="email" class="block text-sm font-medium leading-6 text-gray-900">Email address</label>
-            <div class="mt-2">
-              <input id="email" type="email" autocomplete="email" required
-                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
+        <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+          <div class="space-y-6" action="#" method="POST">
+            <div>
+              <label
+                for="email"
+                class="block text-sm font-medium leading-6 text-gray-900"
+                >Email address</label
+              >
+              <div class="mt-2">
+                <input
+                  id="email"
+                  type="email"
+                  autocomplete="email"
+                  required
+                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                />
+              </div>
             </div>
-          </div>
 
-          <div>
-            <div class="flex items-center justify-between">
-              <label for="password" class="block text-sm font-medium leading-6 text-gray-900">Password</label>
+            <div>
+              <div class="flex items-center justify-between">
+                <label
+                  for="password"
+                  class="block text-sm font-medium leading-6 text-gray-900"
+                  >Password</label
+                >
+              </div>
+              <div class="mt-2">
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autocomplete="current-password"
+                  required
+                  class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                />
+              </div>
             </div>
-            <div class="mt-2">
-              <input id="password" name="password" type="password" autocomplete="current-password" required
-                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6">
-            </div>
-          </div>
 
-          <div class="flex flex-row gap-2">
-            <button id="login"
-              class="flex grow justify-center outline outline-1 rounded-md bg-gray-700 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Sign
-              in</button>
-            <button id="sign-up"
-              class="flex grow justify-center rounded-md text-gray-700 outline outline-1 px-3 py-1.5 text-sm font-semibold leading-6  shadow-sm hover:bg-gray-500 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Sign
-              up</button>
+            <div class="flex flex-row gap-2">
+              <button
+                id="login"
+                class="flex grow justify-center outline outline-1 rounded-md bg-gray-700 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              >
+                Sign in
+              </button>
+              <button
+                id="sign-up"
+                class="flex grow justify-center rounded-md text-gray-700 outline outline-1 px-3 py-1.5 text-sm font-semibold leading-6 shadow-sm hover:bg-gray-500 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              >
+                Sign up
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-
-  <!-- <div id="login-box" hidden="true">
+    <!-- <div id="login-box" hidden="true">
       Email: <input type="email" name="" id="email" /> <br />
       Password: <input type="password" name="" id="password" /> <br />
       <button id="login">Login</button>
       <button id="sign-up">Sign Up</button>
     </div> -->
 
+    <!-- if we hava a logged in user then show the user email address from the user_token object -->
 
+    {% if user_token %}
 
-  <!-- if we hava a logged in user then show the user email address from the user_token object -->
+    <!-- <p>User email: {{ user_token.email }}</p> -->
+    <div>
+      <!-- Modals -->
 
+      <!-- Add gallery modal -->
+      <div
+        id="add-gallery-modal"
+        hidden="true"
+        class="relative z-10"
+        aria-labelledby="modal-title"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div
+          class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+          aria-hidden="true"
+        ></div>
 
-
-  {% if user_token %}
-
-
-  <!-- <p>User email: {{ user_token.email }}</p> -->
-  <!-- <button id="sign-out" hidden="true">Sign Out</button> -->
-
-
-
-
-  <div>
-
-    <div id="add-gallery-modal" hidden="true" class="relative z-10" aria-labelledby="modal-title" role="dialog"
-      aria-modal="true">
-      <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
-
-      <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
-        <div class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
           <div
-            class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg">
-
-            <!-- add gallery form -->
-            <form action="/gallery" method="post">
-              <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
-                <div class="mt-3 text-center sm:mt-0 sm:text-left">
-                  <h3 class="text-base font-semibold leading-6 text-gray-900" id="modal-title">Add gallery</h3>
-                  <div class="mt-2">
-                    <div class="mt-10 sm:mx-auto w-full">
-                      <div>
-                        <label for="gallery_name" class="block text-sm font-medium leading-6 text-gray-900">Gallery
-                          name</label>
-                        <div class="mt-2">
-                          <input name="gallery_name" id="gallery_name" type="gallery_name" autocomplete="gallery_name"
-                            required
-                            class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6">
+            class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0"
+          >
+            <div
+              class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg"
+            >
+              <!-- add gallery form -->
+              <form action="/gallery" method="post">
+                <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                  <div class="mt-3 text-center sm:mt-0 sm:text-left">
+                    <h3
+                      class="text-base font-semibold leading-6 text-gray-900"
+                      id="modal-title"
+                    >
+                      Add gallery
+                    </h3>
+                    <div class="mt-2">
+                      <div class="mt-10 sm:mx-auto w-full">
+                        <div>
+                          <label
+                            for="gallery_name"
+                            class="block text-sm font-medium leading-6 text-gray-900"
+                            >Gallery name</label
+                          >
+                          <div class="mt-2">
+                            <input
+                              name="gallery_name"
+                              id="gallery_name"
+                              type="gallery_name"
+                              autocomplete="gallery_name"
+                              required
+                              class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6">
-                <button id="" type="submit"
-                  class="inline-flex w-full justify-center rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 sm:ml-3 sm:w-auto">Save</button>
-                <button id="close-add-gallery-modal" type="button"
-                  class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">Cancel</button>
-              </div>
-            </form>
+                <div
+                  class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6"
+                >
+                  <button
+                    id=""
+                    type="submit"
+                    class="inline-flex w-full justify-center rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 sm:ml-3 sm:w-auto"
+                  >
+                    Save
+                  </button>
+                  <button
+                    onclick=""
+                    id="close-add-gallery-modal"
+                    type="button"
+                    class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Share gallery modal -->
+      <div
+        id="share-gallery-modal"
+        hidden="true"
+        class="relative z-10"
+        aria-labelledby="modal-title"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div
+          class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+          aria-hidden="true"
+        ></div>
+
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div
+            class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0"
+          >
+            <div
+              class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg"
+            >
+              <!-- share gallery form -->
+              <form action="/share-gallery" method="post">
+                <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                  <div class="mt-3 text-center sm:mt-0 sm:text-left">
+                    <h3
+                      class="text-base font-semibold leading-6 text-gray-900"
+                      id="modal-title"
+                    >
+                      Share gallery
+                    </h3>
+                    <div class="mt-2">
+                      <div class="mt-10 sm:mx-auto w-full">
+                        <div>
+                          <label
+                            for="email"
+                            class="block text-sm font-medium leading-6 text-gray-900"
+                            >Email</label
+                          >
+                          <div class="mt-2">
+                            <input
+                              name="email"
+                              id="share_email"
+                              type="email"
+                              autocomplete="email"
+                              required
+                              class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
+                            />
+                          </div>
+                        </div>
+
+                        <!-- gallery index -->
+                        <input
+                          type="hidden"
+                          name="index"
+                          id="share_gallery_index"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6"
+                >
+                  <button
+                    id=""
+                    type="submit"
+                    class="inline-flex w-full justify-center rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 sm:ml-3 sm:w-auto"
+                  >
+                    Share
+                  </button>
+                  <button
+                    id="close-share-gallery-modal"
+                    type="button"
+                    class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- update gallery modal -->
+      <div
+        id="update-gallery-modal"
+        hidden="true"
+        class="relative z-10"
+        aria-labelledby="modal-title"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div
+          class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+          aria-hidden="true"
+        ></div>
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div
+            class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0"
+          >
+            <div
+              class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg"
+            >
+              <!-- update gallery form -->
+              <form action="/update-gallery-name" method="post">
+                <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                  <div class="mt-3 text-center sm:mt-0 sm:text-left">
+                    <h3
+                      class="text-base font-semibold leading-6 text-gray-900"
+                      id="modal-title"
+                    >
+                      Update gallery
+                    </h3>
+                    <div class="mt-2">
+                      <div class="mt-10 sm:mx-auto w-full">
+                        <div>
+                          <label
+                            for="gallery_name"
+                            class="block text-sm font-medium leading-6 text-gray-900"
+                            >Gallery name</label
+                          >
+                          <div class="mt-2">
+                            <input
+                              name="gallery_name"
+                              id="gallery_name"
+                              type="text"
+                              autocomplete="gallery_name"
+                              required
+                              class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
+                            />
+                          </div>
+                        </div>
+
+                        <!-- gallery index -->
+                        <input
+                          type="hidden"
+                          name="index"
+                          id="update_gallery_index"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6"
+                >
+                  <button
+                    id=""
+                    type="submit"
+                    class="inline-flex w-full justify-center rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 sm:ml-3 sm:w-auto"
+                  >
+                    Save
+                  </button>
+                  <button
+                    id="close-update-gallery-modal"
+                    type="button"
+                    class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- delete gallery modal -->
+      <div
+        id="delete-gallery-modal"
+        hidden="true"
+        class="relative z-10"
+        aria-labelledby="modal-title"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div
+          class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+          aria-hidden="true"
+        ></div>
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div
+            class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0"
+          >
+            <div
+              class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg"
+            >
+              <!-- delete gallery form -->
+              <form action="/delete-gallery" method="post">
+                <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                  <div class="sm:flex sm:items-start">
+                    <div
+                      class="mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full bg-red-100 sm:mx-0 sm:h-10 sm:w-10"
+                    >
+                      <svg
+                        class="h-6 w-6 text-red-600"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke-width="1.5"
+                        stroke="currentColor"
+                        aria-hidden="true"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"
+                        />
+                      </svg>
+                    </div>
+                    <div class="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
+                      <h3
+                        class="text-base font-semibold leading-6 text-gray-900"
+                        id="modal-title"
+                      >
+                        Delete gallery
+                      </h3>
+                      <div class="mt-2">
+                        <p class="text-sm text-gray-500">
+                          Are you sure you want to delete your gallery? All
+                          of your data will be permanently removed. This action
+                          cannot be undone.
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- gallery index -->
+                <input type="hidden" name="index" id="delete_gallery_index" />
+                <div
+                  class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6"
+                >
+                  <button
+                    id=""
+                    type="submit"
+                    class="inline-flex w-full justify-center rounded-md bg-red-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 sm:ml-3 sm:w-auto"
+                  >
+                    Delete
+                  </button>
+                  <button
+                    id="close-delete-gallery-modal"
+                    type="button"
+                    class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
+    <div>
+      <div class="bg-white">
+        <!-- Section heading -->
+        <div
+          class="flex flex-row justify-between mx-auto max-w-2xl px-4 py-8 sm:px-6 mt-16 sm:py-8 lg:max-w-7xl lg:px-8 border-b"
+        >
+          <div>
+            <h2 class="text-2xl font-bold tracking-tight text-gray-900">
+              Your Galleries
+            </h2>
+          </div>
+          <div class="flex flex-row justify-end gap-2">
+            <!-- add gallery button -->
+            <a href="/?detect_duplicates=true">
+              <button
+                id="close-add-gallery-modal"
+                type="button"
+                class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+              >
+                Show duplicate images
+              </button>
+            </a>
 
-
-
-    <!-- <form action="/gallery" method="post">
-        Gallery Name:
-        <input type="text" name="gallery_name" id="gallery_name" required />
-        <input type="submit" value="Save" />
-      </form> -->
-  </div>
-
-  
-
-
-  <div>
-    <div class="bg-white">
-
-      <!-- Section heading -->
-      <div class="flex flex-row justify-between mx-auto max-w-2xl px-4 py-8 sm:px-6 mt-16 sm:py-8 lg:max-w-7xl lg:px-8 border-b">
-        <div>
-          <h2 class="text-2xl font-bold tracking-tight text-gray-900">Your Galleries</h2>
+            <!-- Show duplicate images button -->
+            <button
+              id="add-gallery"
+              type="submit"
+              class="inline-flex w-full justify-center rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 sm:ml-3 sm:w-auto"
+            >
+              <span class="mr-2">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke-width="1.5"
+                  stroke="currentColor"
+                  class="size-6"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 4.5v15m7.5-7.5h-15"
+                  />
+                </svg>
+              </span>
+              <p>Add gallery</p>
+            </button>
+          </div>
         </div>
-        <div class="flex flex-row justify-end gap-2">
-          
-          <!-- add gallery button -->
-          <a href="/?detect_duplicates=true">
-            <button id="close-add-gallery-modal" type="button" class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto">Show duplicate images</button>
-          </a>
-          
-          <!-- Show duplicate images button -->
-          <button id="add-gallery" type="submit" class="inline-flex w-full justify-center rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 sm:ml-3 sm:w-auto">
-            <span class="mr-2">
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="size-6">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-              </svg>
-            </span>
-            <p>Add gallery</p>          
-          </button>
-        </div>
-      </div>
-      
-      <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
-        <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
 
-          {% for gallery in galleries %}
+        <div
+          class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8"
+        >
+          <div
+            class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8"
+          >
+            {% for gallery in galleries %}
 
-          <a href="/gallery/{{ loop.index0 }}" class="group">
-            {% if gallery.get('images')[0] %}
-            <div
-              class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
-              <img src="{{ gallery.get('images')[0].get().get('url') }}"
-                alt="Gallery cover."
-                class="h-full w-full object-cover object-center group-hover:opacity-75">
+            <div class="group">
+              {% if gallery.get('images')[0] %}
+
+              <a href="/gallery/{{ loop.index0 }}">
+                <div
+                  class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7"
+                >
+                  <img
+                    src="{{ gallery.get('images')[0].get().get('url') }}"
+                    alt="Gallery cover."
+                    class="h-full w-full object-cover object-center group-hover:opacity-75"
+                  />
+                </div>
+              </a>
+
+              {% endif %}
+
+              <div class="flex flex-row justify-between mt-4">
+                <!-- Gallery title -->
+                <a href="/gallery/{{ loop.index0 }}">
+                  <div class="flex flex-col justify-center">
+                    <h3 class="text-gray-700">{{ gallery.get("name") }}</h3>
+                  </div>
+                </a>
+
+                <!-- Gallery actions -->
+                <div class="flex flex-row justify-end gap-2">
+                  <!-- share -->
+                  <button
+                    id="share-gallery"
+                    onclick='openShareGalleryModal("{{ loop.index0 }}")'
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M7.217 10.907a2.25 2.25 0 1 0 0 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186 9.566-5.314m-9.566 7.5 9.566 5.314m0 0a2.25 2.25 0 1 0 3.935 2.186 2.25 2.25 0 0 0-3.935-2.186Zm0-12.814a2.25 2.25 0 1 0 3.933-2.185 2.25 2.25 0 0 0-3.933 2.185Z"
+                      />
+                    </svg>
+                  </button>
+
+                  <!-- Update gallery -->
+                  <button
+                    id="update-gallery"
+                    onclick='openUpdateGalleryModal("{{ loop.index0 }}")'
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L6.832 19.82a4.5 4.5 0 0 1-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 0 1 1.13-1.897L16.863 4.487Zm0 0L19.5 7.125"
+                      />
+                    </svg>
+                  </button>
+
+                  <!-- delete -->
+                  <button
+                    id="detele-gallery"
+                    onclick='openDeleteGalleryModal("{{ loop.index0 }}")'
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke-width="1.5"
+                      stroke="currentColor"
+                      class="size-6"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0"
+                      />
+                    </svg>
+                  </button>
+                </div>
+              </div>
             </div>
-            {% endif %}
 
-            <h3 class="mt-4 text-sm text-gray-700">{{ gallery.get("name") }}</h3>
-          </a>
-
-          <!-- <a href="/gallery/{{ loop.index0 }}">
+            <!-- <a href="/gallery/{{ loop.index0 }}">
               <p>{{ gallery.get("name") }}</p>
               {% if gallery.get('images')[0] %}
               <img src="{{ gallery.get('images')[0].get().get('url') }}" alt="" width="200">
               {% endif %}
             </a> -->
 
-          <!-- <form action="/update-gallery-name" method="post">
+            <!-- <form action="/update-gallery-name" method="post">
               <input type="text" name="gallery_name" />
               <input type="hidden" name="index" value="{{ loop.index0 }}" />
               <input type="submit" value="Update" />
             </form> -->
 
-          <!-- <form action="/share-gallery" method="post">
+            <!-- <form action="/share-gallery" method="post">
               <input type="email" name="email" required/>
               <input type="hidden" name="index" value="{{ loop.index0 }}" />
               <input type="submit" value="Share" />
             </form> -->
 
-          <!-- <form action="/delete-gallery" method="post">
+            <!-- <form action="/delete-gallery" method="post">
               <input type="hidden" name="index" value="{{ loop.index0 }}" />
               <input type="submit" value="delete" />
             </form> -->
 
-          {% endfor %}
-
-        </div>
-      </div>
-
-      <!-- show duplicate images -->
-      {% if duplicates %}
-        <!-- section header -->
-        <div class="flex flex-row justify-between mx-auto max-w-2xl px-4 py-8 sm:px-6 mt-16 sm:py-8 lg:max-w-7xl lg:px-8 border-b">
-          <div>
-            <h2 class="text-2xl font-bold tracking-tight text-gray-900">Duplicate images accross galleries</h2>
-          </div>
-        </div>
-
-        <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
-          <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8">
-
-            {% for duplicate in duplicates %}
-              <div
-                class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
-                <img src="{{ duplicate.get('url') }}"
-                  alt="Gallery cover."
-                  class="h-full w-full object-cover object-center group-hover:opacity-75">
-              </div>
             {% endfor %}
-
           </div>
         </div>
-      {% endif %}
 
+        <!-- show duplicate images -->
+        {% if duplicates %}
+        <!-- section header -->
+        <div
+          class="flex flex-row justify-between mx-auto max-w-2xl px-4 py-8 sm:px-6 mt-16 sm:py-8 lg:max-w-7xl lg:px-8 border-b"
+        >
+          <div>
+            <h2 class="text-2xl font-bold tracking-tight text-gray-900">
+              Duplicate images accross galleries
+            </h2>
+          </div>
+        </div>
+
+        <div
+          class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8"
+        >
+          <div
+            class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8"
+          >
+            {% for duplicate in duplicates %}
+            <div
+              class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7"
+            >
+              <img
+                src="{{ duplicate.get('url') }}"
+                alt="Gallery cover."
+                class="h-full w-full object-cover object-center group-hover:opacity-75"
+              />
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
     </div>
+    {%endif%}
+  </body>
 
-  </div>
-  {%endif%}
-</body>
-
+  <script src="{{ url_for('static', path='/script.js') }}"></script>
 </html>
