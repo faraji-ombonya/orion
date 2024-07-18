@@ -238,33 +238,8 @@
       </div>
     </div>
 
-    <!-- <a href="/"> go back</a> -->
-
-    <!-- <p>User email: {{ user_token.email }}</p> -->
-
     <div>
-      <!-- <h2>Gallery: {{ gallery.get("name") }}</h2> -->
-
-      <!-- <h3>Add an Image</h3>
-      <form
-        action="/gallery/{{ gallery_index }}/image"
-        method="post"
-        enctype="multipart/form-data"
-      >
-        <input
-          type="file"
-          name="file_name"
-          id="file_name"
-          accept=".jpg, .jpeg, .png, image/jpeg, image/jpg, image/png"
-        />
-        <input type="submit" value="Upload" />
-      </form> -->
-
-      <!-- <a href="/gallery/{{ gallery_index }}/?detect_duplicates=true">
-        Show duplicates
-      </a> -->
-
-      <!-- galleries -->
+      <!-- images -->
       <div
         class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8"
       >
@@ -287,6 +262,41 @@
         </div>
       </div>
 
+      <!-- show duplicate images -->
+      {% if duplicates %}
+
+      <!-- section header -->
+      <div
+        class="flex flex-row justify-between mx-auto max-w-2xl px-4 py-8 sm:px-6 mt-16 sm:py-8 lg:max-w-7xl lg:px-8 border-b"
+      >
+        <div>
+          <h2 class="text-2xl font-bold tracking-tight text-gray-900">
+            Duplicate images in this gallery
+          </h2>
+        </div>
+      </div>
+
+      <div
+        class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8"
+      >
+        <div
+          class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8"
+        >
+          {% for duplicate in duplicates %}
+          <div
+            class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7"
+          >
+            <img
+              src="{{ duplicate.get('url') }}"
+              alt="Gallery cover."
+              class="h-full w-full object-cover object-center group-hover:opacity-75"
+            />
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
       <h3>Images</h3>
       {% for image in images %}
       <img src="{{ image.get('url') }}" alt="" width="200" />
@@ -297,20 +307,6 @@
         <input type="submit" value="delete" />
       </form>
       {% endfor %}
-
-      <!-- render duplicates -->
-      {% if duplicates %}
-      <h3>duplicates</h3>
-
-      {% for duplicate in duplicates %}
-      <img src="{{ duplicate.get('url') }}" alt="" width="200" />
-      <form
-        action="/gallery/{{ gallery_index }}/image/{{ loop.index0 }}/delete"
-        method="post"
-      >
-        <input type="submit" value="delete" />
-      </form>
-      {% endfor %} {% endif %}
     </div>
     {%endif%}
   </body>
