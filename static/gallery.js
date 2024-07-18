@@ -15,20 +15,10 @@ window.addEventListener("load", function () {
     });
 });
 
-// // Gallery actions
-// function openShareGalleryModal(index) {
-//   document.getElementById("share-gallery-modal").hidden = false;
+function handleMouseEnter(index) {
+  document.getElementById(`image-${index}`).hidden = false;
+}
 
-//   // add gallery index value to the form
-//   document.getElementById("share_gallery_index").value = index;
-// }
-
-// function openUpdateGalleryModal(index) {
-//   document.getElementById("update-gallery-modal").hidden = false;
-//   document.getElementById("update_gallery_index").value = index;
-// }
-
-// function openDeleteGalleryModal(index) {
-//   document.getElementById("delete-gallery-modal").hidden = false;
-//   document.getElementById("delete_gallery_index").value = index;
-// }
+function handleMouseLeave(index) {
+  document.getElementById(`image-${index}`).hidden = true;
+}
