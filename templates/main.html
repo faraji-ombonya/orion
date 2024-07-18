@@ -435,8 +435,8 @@
                       </h3>
                       <div class="mt-2">
                         <p class="text-sm text-gray-500">
-                          Are you sure you want to delete your gallery? All
-                          of your data will be permanently removed. This action
+                          Are you sure you want to delete your gallery? All of
+                          your data will be permanently removed. This action
                           cannot be undone.
                         </p>
                       </div>
@@ -483,7 +483,7 @@
           </div>
           <div class="flex flex-row justify-end gap-2">
             <!-- add gallery button -->
-            <a href="/?detect_duplicates=true">
+            <a href="/?detect_duplicates=true#duplicates">
               <button
                 id="close-add-gallery-modal"
                 type="button"
@@ -653,6 +653,7 @@
         {% if duplicates %}
         <!-- section header -->
         <div
+          id="duplicates"
           class="flex flex-row justify-between mx-auto max-w-2xl px-4 py-8 sm:px-6 mt-16 sm:py-8 lg:max-w-7xl lg:px-8 border-b"
         >
           <div>
