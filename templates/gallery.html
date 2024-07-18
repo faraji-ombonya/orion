@@ -3,14 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Firebase login</title>
+    <title>Gallery</title>
     <link rel="stylesheet" href="{{ url_for('static', path='/style.css') }}" />
     <script
       type="module"
       src="{{ url_for('static', path='/firebase-login.js') }}"
     ></script>
   </head>
-  <body>
+  <body class="h-full">
     <nav class="bg-gray-800">
       <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
         <div class="relative flex h-16 items-center justify-end">
@@ -58,14 +58,194 @@
 
     <!-- if we hava a logged in user then show the user email address from the user_token object -->
     {% if user_token %}
-    <a href="/"> go back</a>
-
-    <p>User email: {{ user_token.email }}</p>
 
     <div>
-      <h2>Gallery: {{ gallery.get("name") }}</h2>
+      <!-- Modals -->
+      <!-- Add Image modal -->
+      <div
+        id="add-image-modal"
+        hidden="true"
+        class="relative z-10"
+        aria-labelledby="modal-title"
+        role="dialog"
+        aria-modal="true"
+      >
+        <div
+          class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"
+          aria-hidden="true"
+        ></div>
 
-      <h3>Add an Image</h3>
+        <div class="fixed inset-0 z-10 w-screen overflow-y-auto">
+          <div
+            class="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0"
+          >
+            <div
+              class="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg"
+            >
+              <!-- add image form -->
+              <form
+                action="/gallery/{{ gallery_index }}/image"
+                method="post"
+                enctype="multipart/form-data"
+              >
+                <div class="bg-white px-4 pb-4 pt-5 sm:p-6 sm:pb-4">
+                  <div class="mt-3 text-center sm:mt-0 sm:text-left">
+                    <h3
+                      class="text-base font-semibold leading-6 text-gray-900"
+                      id="modal-title"
+                    >
+                      Add image
+                    </h3>
+
+                    <div class="col-span-full">
+                      <div
+                        class="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
+                      >
+                        <div class="text-center">
+                          <svg
+                            class="mx-auto h-12 w-12 text-gray-300"
+                            viewBox="0 0 24 24"
+                            fill="currentColor"
+                            aria-hidden="true"
+                          >
+                            <path
+                              fill-rule="evenodd"
+                              d="M1.5 6a2.25 2.25 0 012.25-2.25h16.5A2.25 2.25 0 0122.5 6v12a2.25 2.25 0 01-2.25 2.25H3.75A2.25 2.25 0 011.5 18V6zM3 16.06V18c0 .414.336.75.75.75h16.5A.75.75 0 0021 18v-1.94l-2.69-2.689a1.5 1.5 0 00-2.12 0l-.88.879.97.97a.75.75 0 11-1.06 1.06l-5.16-5.159a1.5 1.5 0 00-2.12 0L3 16.061zm10.125-7.81a1.125 1.125 0 112.25 0 1.125 1.125 0 01-2.25 0z"
+                              clip-rule="evenodd"
+                            />
+                          </svg>
+                          <div
+                            class="mt-4 flex text-sm leading-6 text-gray-600"
+                          >
+                            <label
+                              for="file-upload"
+                              class="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                            >
+                              <span>Upload a file</span>
+                              <input
+                                id="file-upload"
+                                name="file_name"
+                                type="file"
+                                class="sr-only"
+                                accept=".jpg, .jpeg, .png, image/jpeg, image/jpg, image/png"
+                                class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-gray-600 sm:text-sm sm:leading-6"
+                              />
+                            </label>
+                            <p class="pl-1">or drag and drop</p>
+                          </div>
+                          <p class="text-xs leading-5 text-gray-600">
+                            PNG, JPG
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  class="bg-gray-50 px-4 py-3 sm:flex sm:flex-row-reverse sm:px-6"
+                >
+                  <button
+                    id=""
+                    type="submit"
+                    class="inline-flex w-full justify-center rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 sm:ml-3 sm:w-auto"
+                  >
+                    Upload
+                  </button>
+                  <button
+                    onclick=""
+                    id="close-add-image-modal"
+                    type="button"
+                    class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section heading -->
+    <div
+      class="flex flex-row justify-between mx-auto max-w-2xl px-4 py-8 sm:px-6 mt-16 sm:py-8 lg:max-w-7xl lg:px-8 border-b"
+    >
+      <div>
+        <h2 class="text-2xl font-bold tracking-tight text-gray-900">
+          {{ gallery.get("name") }}
+        </h2>
+      </div>
+      <div class="flex flex-row justify-end gap-2">
+        <!-- go back -->
+        <a href="/">
+          <button
+            class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+          >
+            <span class="mr-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="size-5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M9 15 3 9m0 0 6-6M3 9h12a6 6 0 0 1 0 12h-3"
+                />
+              </svg>
+            </span>
+            <p>Galleries</p>
+          </button>
+        </a>
+
+        <!-- show duplicate images -->
+        <a href="/gallery/{{ gallery_index }}/?detect_duplicates=true">
+          <button
+            type="button"
+            class="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
+          >
+            Show duplicate images
+          </button>
+        </a>
+
+        <!-- add image button -->
+        <button
+          id="add-image-button"
+          class="inline-flex w-full justify-center rounded-md bg-gray-700 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-gray-500 sm:ml-3 sm:w-auto"
+        >
+          <span class="mr-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="size-5"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 4.5v15m7.5-7.5h-15"
+              />
+            </svg>
+          </span>
+          <p>Add Image</p>
+        </button>
+      </div>
+    </div>
+
+    <!-- <a href="/"> go back</a> -->
+
+    <!-- <p>User email: {{ user_token.email }}</p> -->
+
+    <div>
+      <!-- <h2>Gallery: {{ gallery.get("name") }}</h2> -->
+
+      <!-- <h3>Add an Image</h3>
       <form
         action="/gallery/{{ gallery_index }}/image"
         method="post"
@@ -78,11 +258,34 @@
           accept=".jpg, .jpeg, .png, image/jpeg, image/jpg, image/png"
         />
         <input type="submit" value="Upload" />
-      </form>
+      </form> -->
 
-      <a href="/gallery/{{ gallery_index }}/?detect_duplicates=true">
+      <!-- <a href="/gallery/{{ gallery_index }}/?detect_duplicates=true">
         Show duplicates
-      </a>
+      </a> -->
+
+      <!-- galleries -->
+      <div
+        class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8"
+      >
+        <div
+          class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 xl:gap-x-8"
+        >
+          {% for image in images %}
+
+          <div
+            class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7"
+          >
+            <img
+              src="{{ image.get('url') }}"
+              alt="image"
+              class="h-full w-full object-cover object-center group-hover:opacity-75"
+            />
+          </div>
+
+          {% endfor %}
+        </div>
+      </div>
 
       <h3>Images</h3>
       {% for image in images %}
@@ -111,4 +314,5 @@
     </div>
     {%endif%}
   </body>
+  <script src="{{ url_for('static', path='/gallery.js') }}"></script>
 </html>
