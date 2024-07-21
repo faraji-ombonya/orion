@@ -412,7 +412,7 @@ async def handle_delete_gallery(request: Request):
 
 
 @app.post('/share-gallery', response_class=RedirectResponse)
-async def handle_get_gallery(request: Request):
+async def handle_share_gallery(request: Request):
     # get and validate token
     id_token = request.cookies.get("token")
     user_token = validate_firebase_token(id_token)
