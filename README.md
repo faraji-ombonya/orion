@@ -9,8 +9,6 @@ A simple image storage service with FastAPI
 - Javascript for interactivity
 - CSS for styling language
 - Tailwind CSS for styling library
-- Firestore for NoSQL storage
-- Google cloud storage bucket for BLOB storage
 
 ## Skills
 
