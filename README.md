@@ -2,19 +2,19 @@
 
 A simple image storage service with FastAPI
 
-## Tools and Technologies
+## Languages and Frameworks
 
 - Python for language
 - FastAPI for framework
 - Javascript for interactivity
 - CSS for styling language
 - Tailwind CSS for styling library
-- Firebase for authentication
 - Firestore for NoSQL storage
 - Google cloud storage bucket for BLOB storage
 
-## Featured Concepts
+## Skills
 
-- CRUD Operations
-- Web app Authentication
-- UI/UX
+- Authentication with firebase
+- NoSQL storage with Firestore
+- Blob storage with Google Cloud Storage
+- UI/UX design
